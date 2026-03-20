@@ -7,7 +7,15 @@ authors = [
     { name = "Fotis", email = "fotiskapotos@gmail.com" }
 ]
 requires-python = ">=3.9"
-dependencies = []
+dependencies = [
+    "h5py>=3.14.0",
+    "matplotlib>=3.9.4",
+    "pandas>=2.3.3",
+    "torch>=2.8.0",
+    "torchmetrics>=1.8.2",
+    "torchvision>=0.23.0",
+    "tqdm>=4.67.3",
+]
 
 [project.scripts]
 challenge = "challenge:main"
@@ -15,3 +23,8 @@ challenge = "challenge:main"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "ipykernel>=6.31.0",
+]
