@@ -7,6 +7,7 @@ import h5py
 import numpy as np
 import torch
 import torch.nn.functional as F
+from skimage.color import hed2rgb, rgb2hed
 from torch.utils.data import Dataset
 from torchvision import transforms
 
@@ -197,6 +198,35 @@ class Normalisation:
             out = (embeddings - mu) / std
 
         return self._l2(out)
+
+
+class HEDJitter:
+    def __init__(self, theta: float = 0.05):
+        self.theta = theta
+
+    def __call__(self, img: torch.Tensor) -> torch.Tensor:
+        # img: (C, H, W) float in [0, 1], before normalization
+        np_img = img.permute(1, 2, 0).numpy()
+        hed = rgb2hed(np_img)
+        hed += np.random.uniform(-self.theta, self.theta, size=(1, 1, 3))
+        rgb = hed2rgb(hed).clip(0, 1).astype(np.float32)
+        return torch.from_numpy(rgb).permute(2, 0, 1)
+
+
+def get_stain_transforms(img_size: int = IMG_SIZE) -> transforms.Compose:
+    return transforms.Compose(
+        [
+            transforms.Resize((img_size, img_size)),
+            HEDJitter(theta=0.05),
+            transforms.ColorJitter(brightness=0.25, contrast=0.25, saturation=0.25, hue=0.05),
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomVerticalFlip(),
+            transforms.Normalize(mean=MEAN, std=STD),
+        ],
+    )
+
+
+STAIN_TRANSFORMS = get_stain_transforms()
 
 
 def get_train_transforms(img_size: int = IMG_SIZE) -> transforms.Compose:

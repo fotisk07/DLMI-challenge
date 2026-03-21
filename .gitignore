@@ -3,3 +3,5 @@ __pycache__
 *.zip
 data/*
 !data/download.sh
+logs
+outputs/
