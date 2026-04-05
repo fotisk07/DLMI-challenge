@@ -8,11 +8,18 @@ authors = [
 ]
 requires-python = ">=3.9"
 dependencies = [
+    "clip>=0.2.0",
     "h5py>=3.14.0",
     "matplotlib>=3.9.4",
+    "open-clip-torch>=3.3.0",
     "pandas>=2.3.3",
+    "pathologyfoundation>=0.2.7",
+    "peft>=0.17.1",
     "scikit-image>=0.24.0",
+    "setuptools>=82.0.1",
+    "timm>=1.0.26",
     "torch>=2.8.0",
+    "torchinfo>=1.8.0",
     "torchmetrics>=1.8.2",
     "torchvision>=0.23.0",
     "tqdm>=4.67.3",

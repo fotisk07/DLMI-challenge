@@ -1,7 +1,11 @@
 __pycache__
 
+.vscode
 *.zip
 data/*
 !data/download.sh
 logs
 outputs/
+
+checkpoints
+weights

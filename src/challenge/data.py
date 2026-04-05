@@ -60,6 +60,7 @@ class PatchDataset(Dataset):
             "img": img,
             "label": label,
             "center": center,
+            "img_id": img_id
         }
 
 

@@ -39,7 +39,8 @@ mkdir -p "$LOG_DIR"
 # Safely quote command for bash -lc
 CMD_STR=$(printf '%q ' "${CMD[@]}")
 
-sbatch <<EOF
+# Submit job and capture job ID
+JOB_ID=$(sbatch --parsable <<EOF
 #!/bin/bash
 #SBATCH --job-name=${JOB_NAME}
 #SBATCH --partition=${PARTITION}
@@ -54,3 +55,14 @@ echo "Command: ${CMD_STR}"
 
 bash -lc "${CMD_STR}"
 EOF
+)
+
+LOG_FILE="${LOG_DIR}/${JOB_NAME}_${JOB_ID}.out"
+echo "Submitted job $JOB_ID, logging to $LOG_FILE"
+
+# Wait until the log file exists, then tail it
+while [ ! -f "$LOG_FILE" ]; do
+  sleep 1
+done
+
+tail -f "$LOG_FILE"
