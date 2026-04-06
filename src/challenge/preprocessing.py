@@ -1,5 +1,6 @@
 import torch
 import torchvision.transforms as T
+import torch.nn.functional as F
 import torchvision.transforms.v2 as v2
 
 from challenge import stain
@@ -82,13 +83,24 @@ class TTAJitter:
         return torch.stack(augmented)   # [n(+1), C, H, W]
     
 class RandomSubsetV2Mix:
-    def __init__(self, alpha=1.0, num_classes=2, p=0.5):
-        self.alpha = alpha
+    def __init__(self, alphas, p, num_classes=2):
         self.num_classes = num_classes
+        if alphas[0] > 0:
+            cutmix = v2.CutMix(alpha=alphas[0], num_classes=self.num_classes)
+        if alphas[1] > 0:
+            mixup = v2.MixUp(alpha=alphas[1], num_classes=self.num_classes)
+        
+        if alphas[0] > 0 and alphas[1] > 0:
+            mix = v2.RandomChoice([cutmix, mixup])
+        elif alphas[0] > 0:
+            mix = cutmix
+        elif alphas[1] > 0:
+            mix = mixup
+        else:
+            raise ValueError('At least one alpha must be positive')
+        
+        self.mix = mix
         self.p = p
-        mixup = v2.MixUp(alpha=self.alpha, num_classes=self.num_classes)
-        cutmix = v2.CutMix(alpha=self.alpha, num_classes=self.num_classes)
-        self.mix = v2.RandomChoice([cutmix, mixup])
 
     def __call__(self, x, y):
         B = x.size(0)

@@ -111,14 +111,14 @@ def get_parser():
     
     HEAugmentor_parser.add_argument(
         "--sigma1",
-        default=0.2,
+        default=0.4,
         type=float,
         help="beta parameter"
     )
     
     HEAugmentor_parser.add_argument(
         "--sigma2",
-        default=0.2,
+        default=0.4,
         type=float,
         help="beta parameter"
     )

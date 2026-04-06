@@ -5,7 +5,7 @@ from pathlib import Path
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
+
 from torch.utils.data import DataLoader
 from torchvision import models
 import torchvision.transforms as T
@@ -39,8 +39,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--shuffle", action='store_true')
     parser.add_argument("--HEDJitter",
                         type=float,
-                        nargs=3,
-                        default=[0, 0, 0],
+                        nargs=2,
+                        default=[0, 0],
                         help="Theta parameter.")
     parser.add_argument("--HEAug",
                         type=float,
@@ -95,10 +95,10 @@ def parse_args() -> argparse.Namespace:
                         help="Disable random 90° rotation.")
     parser.add_argument("--gaussian-blur", action="store_true", default=False,
                         help="Enable random Gaussian blur augmentation.")
-    parser.add_argument("--mix-alpha", type=float, default=0.0,
+    parser.add_argument("--mix-alpha", nargs=2, type=float, default=[0, 0],
                         help="Alpha parameter for CutMix Beta distribution. "
-                             "Set to 0 to disable CutMix (recommended: 0.4–1.0).")
-    parser.add_argument("--mix-prob", type=float, default=0.2,
+                             "Set to 0 to disable CutMix .")
+    parser.add_argument("--mix-prob", type=float, default=0.1,
                         help="Probability of applying CutMix to a given batch.")
 
     # ── LR schedule ───────────────────────────────────────────────────────────
@@ -172,7 +172,7 @@ def build_train_transform(args) -> T.Compose:
     return T.Compose(steps)
 
 
-def build_val_transform(args) -> T.Compose:
+def build_val_transform() -> T.Compose:
     """Deterministic centre-crop pipeline for validation / inference."""
     val_transform = T.Compose(
         [
@@ -201,14 +201,14 @@ def main() -> None:
 
     # ── Transforms ────────────────────────────────────────────────────────────
     train_transform = build_train_transform(args)
-    val_transform   = build_val_transform(args)
+    val_transform   = build_val_transform()
 
     # ── Datasets & loaders ────────────────────────────────────────────────────
     
     collate_fn = preprocessing.base_collate
     
-    if args.mix_alpha > 0:
-        mix = preprocessing.RandomSubsetV2Mix(alpha=args.mix_alpha, p=args.mix_prob)
+    if args.mix_alpha[0] > 0 or args.mix_alpha[1] > 0:
+        mix = preprocessing.RandomSubsetV2Mix(alphas=args.mix_alpha, p=args.mix_prob)
     else:
         mix = None
     
@@ -326,20 +326,23 @@ def main() -> None:
 
         if scheduler is not None:
             scheduler.step()
+            
+        name_save = 'model'
 
         print(
             f"Epoch {epoch + 1:03d}/{args.epochs} | "
             f"train loss {train_loss:.4f}  acc {train_acc:.4f} | "
-            f"val   loss {val_loss:.4f}  acc {val_acc:.4f}"
+            f"val   loss {val_loss:.4f}  acc {val_acc:.4f} | "
+            f"saving {name_save}"
         )
 
         # Save best checkpoint
         if val_acc >= best_val_acc:
             best_val_acc = val_acc
-            utils.save_model(model, epoch, optimizer, val_acc, args, 'best')
+            utils.save_model(model, epoch, optimizer, val_acc, args, f'best{name_save}')
 
         # Save latest checkpoint (for resuming)
-        utils.save_model(model, epoch, optimizer, val_acc, args, 'last')
+        utils.save_model(model, epoch, optimizer, val_acc, args, f'last{name_save}')
 
     print(f"\nTraining complete. Best val acc: {best_val_acc:.4f}")
     print(f"Checkpoints saved to: {args.output_dir}")
