@@ -106,16 +106,14 @@ The full pipeline is illustrated in Figure~\ref{fig:pipeline}.
     arrow/.style={-{Stealth[length=5pt]}, thick},
 ]
 \node[box] (input)    {Patch\\$224\!\times\!224$};
-\node[aug,  right=of input]    (hed)      {HED\\Jitter};
-\node[aug,  right=of hed]      (mac)      {Macenko\\Aug.};
+\node[aug,  right=of input]      (mac)      {Macenko\\Aug.};
 \node[aug,  right=of mac]      (spatial)  {Spatial\\Aug.};
 \node[box,  right=of spatial]  (backbone) {KimiaNet\\DenseNet-121};
 \node[box,  right=of backbone] (gap)      {GAP\\$1024$-d};
 \node[box,  right=of gap]      (lora)     {LoRA\\Head};
 \node[box,  right=of lora]     (out)      {Class\\Logits};
 
-\draw[arrow] (input)    -- (hed);
-\draw[arrow] (hed)      -- (mac);
+\draw[arrow] (input)    -- (mac);
 \draw[arrow] (mac)      -- (spatial);
 \draw[arrow] (spatial)  -- (backbone);
 \draw[arrow] (backbone) -- (gap);
@@ -124,7 +122,7 @@ The full pipeline is illustrated in Figure~\ref{fig:pipeline}.
 
 \begin{scope}[on background layer]
   \node[draw=orange!60, dashed, rounded corners, fill=orange!5,
-        fit=(hed)(mac)(spatial), inner sep=5pt,
+        fit=(mac)(spatial), inner sep=5pt,
         label={[font=\scriptsize, orange!70!black]above:Stain augmentation (train only)}] {};
 \end{scope}
 \end{tikzpicture}
@@ -163,7 +161,7 @@ where $\mathbf{C} = \mathbf{OD}\,\mathbf{S}^{\dagger}$ are the stain concentrati
 \paragraph{Discarded alternatives.}
 Macenko stain \emph{normalization} (mapping all patches to a consensus appearance) was
 tried but degraded out-of-distribution generalization compared to augmentation. HED
-Jitter (additive noise in HED stain-concentration space) was also tested as an alternative to Macenko but did not yield positive results.
+Jitter (additive noise in HED stain-concentration space) was also tested as an alternative to Macenko but was not better than Macenko.
 
 \subsection{Fine-Tuning: Two-Stage LoRA}
 
