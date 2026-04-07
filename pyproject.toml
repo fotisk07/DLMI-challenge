@@ -21,6 +21,7 @@ dependencies = [
     "torch>=2.8.0",
     "torchinfo>=1.8.0",
     "torchmetrics>=1.8.2",
+    "torchstain>=1.4.1",
     "torchvision>=0.23.0",
     "tqdm>=4.67.3",
     "umap-learn>=0.5.11",

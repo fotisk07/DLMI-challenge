@@ -4,15 +4,13 @@ import argparse
 from pathlib import Path
 
 import torch
-from torch.utils.data import DataLoader
 import torchvision.transforms as T
-
+from torch.utils.data import DataLoader
 from tqdm import tqdm
-
 from transformers import AutoImageProcessor, AutoModel
 
-from challenge.data import STAIN_TRANSFORMS, PatchDataset
 from challenge import stain
+from challenge.data import STAIN_TRANSFORMS, PatchDataset
 
 
 def parse_args() -> argparse.Namespace:
@@ -22,31 +20,34 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--num-workers", type=int, default=4)
     parser.add_argument("--tta-views", type=int, default=1, help="Augmented views to average. 1 = no TTA.")
-    parser.add_argument("--normalizer", nargs=2,
-                        metavar=("method", "checkpoint-path"),
-                        default=[None, None],
-                        help="Method and path to the normalizer.")
+    parser.add_argument(
+        "--normalizer",
+        nargs=2,
+        metavar=("method", "checkpoint-path"),
+        default=[None, None],
+        help="Method and path to the normalizer.",
+    )
     return parser.parse_args()
 
+
 def build_normaliser(method, path):
-    if method == 'macenko':
+    if method == "macenko":
         normalizer = stain.MacenkoNormalizer.load(path)
-        print('Using macenko normalizer\n')
+        print("Using macenko normalizer\n")
     else:
-        normalizer = T.Lambda(lambda x:x)
-    
+        normalizer = T.Lambda(lambda x: x)
+
     return normalizer
 
 
 class Phikon(torch.nn.Module):
-    
     def __init__(self, device):
         super().__init__()
         self.processor = AutoImageProcessor.from_pretrained("owkin/phikon-v2")
         self.model = AutoModel.from_pretrained("owkin/phikon-v2").to(device)
         self.model.eval()
         self.device = device
-    
+
     def forward(self, image):
         inputs = self.processor(image, return_tensors="pt")
         with torch.inference_mode():
@@ -82,7 +83,7 @@ def main() -> None:
                     [
                         model(torch.stack([STAIN_TRANSFORMS(img.cpu()) for img in images]).to(device))
                         for _ in range(args.tta_views)
-                    ]
+                    ],
                 )  # (K, B, D)
                 features = views.mean(dim=0)  # (B, D)
 
@@ -100,7 +101,7 @@ def main() -> None:
             "labels": torch.cat(all_labels),
             "centers": torch.cat(all_centers),
             "image_ids": dataset.image_ids,
-            "model": 'phikon',
+            "model": "phikon",
             "mode": mode,
         },
         save_path,

@@ -24,9 +24,7 @@ class LinearProbe(nn.Module):
     def __init__(self, input_dim: int):
         super().__init__()
         self.classifier = nn.Linear(input_dim, 2)
-        self.classifier = nn.Sequential(
-            nn.Linear(input_dim, 2)
-        )
+        self.classifier = nn.Sequential(nn.Linear(input_dim, 2))
 
     def forward(self, embeddings: torch.Tensor) -> torch.Tensor:
         return self.classifier(embeddings)
@@ -300,12 +298,11 @@ def main() -> None:
             optimizer=optimizer,
         )
         if val_loader is not None:
-            
             with torch.no_grad():
                 val_metrics = run_epoch(model, val_loader, normalizer=normalizer, device=device, is_val=True)
-            
+
             best_val_accuracy = max(val_metrics.accuracy, best_val_accuracy)
-            
+
             print(
                 f"Epoch {epoch:02d}/{args.epochs} | "
                 f"train_loss={train_metrics.loss:.4f} train_acc={train_metrics.accuracy:.4f} | "
@@ -315,8 +312,6 @@ def main() -> None:
             print(
                 f"Epoch {epoch:02d} | train_loss={train_metrics.loss:.4f} train_acc={train_metrics.accuracy:.4f}",
             )
-    
-    
 
     save_checkpoint(
         save_path=args.save_path,

@@ -1,15 +1,37 @@
-# Data
+# DLMI Challenge — Patch-level Cancer Grading
 
-The scripts in the `scripts` folder assume that the data is located in a folder named `data`.
+Histopathology patch classification challenge (MVA DLMI).
 
-# Download KimiaNet
+## Setup
 
-Download the weights from: https://github.com/KimiaLabMayo/KimiaNet  
-Then place them in a `/weights` folder.
+```bash
+uv sync
+```
 
-# Reproduce Results
+Then prefix any script with `uv run`:
 
-The script used to train the model is `train.py`. It performs training and saves checkpoints in the `checkpoints` folder.
+```bash
+uv run scripts/train.py
+```
+
+## Data
+
+You can download the data using the `data/downloand.sh` script. You will need a kaggle token. 
+Otherwise just place `train.h5`, `val.h5` and `test.h5` in the data folder.
+
+## KimiaNet Weights
+
+Download weights from [KimiaLabMayo/KimiaNet](https://github.com/KimiaLabMayo/KimiaNet) and place them in a `weights/` folder.
+
+## Stain Normalization
+
+Fit a normalizer on the training data:
+
+```bash
+uv run scripts/fit_normalizer.py
+```
+
+## Training
 
 ```bash
 uv run scripts/train.py \
@@ -23,12 +45,24 @@ uv run scripts/train.py \
   --scheduler step \
   --gaussian-blur \
   --lora 8 16
-````
+```
 
-# Predict
+Checkpoints are saved to `checkpoints/`.
 
-Once training is complete, you can run predictions on the test set. Results will be saved in the `output` folder.
+## Prediction
 
 ```bash
-uv run scripts/predicts.py checkpoints/bestmodel.pt
+uv run scripts/predict.py checkpoints/bestmodel.pt
 ```
+
+Results are saved to `output/`.
+
+## Other Scripts
+
+| Script | Description |
+|---|---|
+| `scripts/linear_probing.py` | Linear probing evaluation |
+| `scripts/dinoV2_embds.py` | Extract DINOv2 embeddings |
+| `scripts/phikon_embds.py` | Extract Phikon embeddings |
+| `scripts/sweep.py` | Hyperparameter sweep |
+| `scripts/visu_normalizer.py` | Visualize stain normalization |
