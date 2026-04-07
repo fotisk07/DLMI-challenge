@@ -12,5 +12,5 @@ weights/*
 !weights/kimianet.sh
 
 report/*
-!report/main.tex
-!report/main.pdf
+!report/midl-fullpaper.tex
+!report/midl-fullpaper.pdf
