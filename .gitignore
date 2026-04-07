@@ -9,3 +9,7 @@ outputs/
 
 checkpoints
 weights
+
+report/*
+!report/main.tex
+!report/main.pdf
