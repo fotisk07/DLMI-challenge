@@ -4,6 +4,7 @@ Histopathology patch classification challenge (MVA DLMI).
 
 ## Setup
 
+### Using UV
 ```bash
 uv sync
 ```
@@ -13,6 +14,9 @@ Then prefix any script with `uv run`:
 ```bash
 uv run scripts/train.py
 ```
+
+### Without uv (using venv)
+Create a virtual environment and install the requirements in the `requirements.txt`
 
 ## Data
 
