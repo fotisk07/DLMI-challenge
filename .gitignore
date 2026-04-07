@@ -8,7 +8,8 @@ logs
 outputs/
 
 checkpoints
-weights
+weights/*
+!weights/kimianet.sh
 
 report/*
 !report/main.tex
